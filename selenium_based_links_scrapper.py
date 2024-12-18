@@ -11,14 +11,14 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 BASE_URL = "https://um.mos.ru"
 CATEGORIES = ["houses", "places", "monuments"]
-PAGE_LOAD_DELAY = 3  # seconds to wait for page to load
+PAGE_LOAD_DELAY = 3  
 
 def initialize_driver():
     """
     Initialize the Selenium WebDriver with desired options.
     """
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Run in headless mode for efficiency
+    options.add_argument("--headless")  
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
@@ -31,16 +31,16 @@ def get_max_pages(driver, category):
     """
     url = f"{BASE_URL}/{category}/?page=1"
     driver.get(url)
-    time.sleep(PAGE_LOAD_DELAY)  # Wait for the page to load
+    time.sleep(PAGE_LOAD_DELAY)  
 
     soup = BeautifulSoup(driver.page_source, "html.parser")
-    # Find all pagination links
+
     pagination_links = soup.find_all("a", class_="Pagination_paginationList__link__mp7bO")
     if not pagination_links:
-        # If no pagination links found, assume only one page
+
         return 1
 
-    # Extract the maximum page number from the pagination links
+
     page_numbers = []
     for link in pagination_links:
         text = link.get_text(strip=True)
@@ -52,25 +52,24 @@ def get_max_pages(driver, category):
 def scrape_category(driver, category):
     max_pages = get_max_pages(driver, category)
 
-    # Ensure datasets folder exists
+
     os.makedirs("datasets", exist_ok=True)
     output_file = os.path.join("datasets", f"{category}.csv")
 
     with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
-        # Header
+
         writer.writerow(["Name", "Link"])
         
         for page_num in tqdm(range(1, max_pages + 1), desc=f"Scraping {category}", unit="page"):
             url = f"{BASE_URL}/{category}/?page={page_num}"
             driver.get(url)
-            time.sleep(PAGE_LOAD_DELAY)  # Wait for the page to load
+            time.sleep(PAGE_LOAD_DELAY) 
             
             soup = BeautifulSoup(driver.page_source, "html.parser")
-            # Find all relevant links
+
             anchors = soup.find_all("a", class_="AbstractCard_title__Z2Hu2")
             if not anchors:
-                # Might be no records on this page
                 continue
             
             for a in anchors:

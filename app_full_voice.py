@@ -266,14 +266,13 @@ def display_chat(item_id, use_voice):
     if item_id not in st.session_state.dialog_history:
         st.session_state.dialog_history[item_id] = []
 
-    # Display existing messages
+
     for msg in st.session_state.dialog_history[item_id]:
         if msg['role'] == 'user':
             st.chat_message("user").write(msg["content"])
         elif msg['role'] == 'assistant':
             st.chat_message("assistant").write(msg["content"])
 
-    # Text-based input
     prompt = st.chat_input("Вы:")
     if prompt:
         st.session_state.dialog_history[item_id].append({'role': 'user', 'content': prompt})
@@ -296,10 +295,9 @@ def display_chat(item_id, use_voice):
     st.divider()
     st.markdown("#### 🎤 Запись голоса с микрофона")
 
-    # Show audio input widget (available since Streamlit 1.41.0)
+
     audio_value = st.audio_input("Record a voice message")
 
-    # If user just finished recording and we have new audio
     if audio_value:
         wav_bytes = audio_value.getvalue()
         if wav_bytes != st.session_state.last_audio_bytes:
@@ -331,7 +329,6 @@ def main():
     initialize_session_state()
     use_map, distance_input, search_button = user_inputs_sidebar()
 
-    # Add a checkbox for enabling/disabling voice mode
     use_voice = st.sidebar.checkbox("🎙️ Включить голосовой режим", value=False)
 
     data_path = os.path.join("datasets", "details_filtered.csv")

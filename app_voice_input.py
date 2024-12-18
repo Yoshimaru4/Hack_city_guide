@@ -184,14 +184,14 @@ def display_chat(item_id):
     if item_id not in st.session_state.dialog_history:
         st.session_state.dialog_history[item_id] = []
     
-    # Display existing messages
+
     for msg in st.session_state.dialog_history[item_id]:
         if msg['role'] == 'user':
             st.chat_message("user").write(msg["content"])
         elif msg['role'] == 'assistant':
             st.chat_message("assistant").write(msg["content"])
 
-    # Text-based input
+
     prompt = st.chat_input("Вы:")
     if prompt:
         st.session_state.dialog_history[item_id].append({'role': 'user', 'content': prompt})
@@ -209,26 +209,20 @@ def display_chat(item_id):
     st.divider()
     st.markdown("#### 🎤 Запись голоса с микрофона")
 
-    # Show audio input widget (available since Streamlit 1.41.0)
     audio_value = st.audio_input("Record a voice message")
 
-    # If user just finished recording and we have new audio
     if audio_value:
         wav_bytes = audio_value.getvalue()
-        # Check if this audio is new (not the same as last processed)
         if wav_bytes != st.session_state.last_audio_bytes:
-            # Update last audio bytes to prevent re-transcription on re-runs
             st.session_state.last_audio_bytes = wav_bytes
 
             with st.spinner("Транскрипция аудио..."):
                 transcription = transcribe_audio_data(wav_bytes)
 
             if transcription:
-                # Add transcription as user message
                 st.session_state.dialog_history[item_id].append({'role': 'user', 'content': transcription})
                 st.chat_message("user").write(transcription)
                 
-                # Get info for the chat
                 df = st.session_state.search_results
                 info = df.loc[df['ID'] == item_id, 'Info'].values[0]
                 
